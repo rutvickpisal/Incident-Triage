@@ -15,17 +15,40 @@ styleSheet.type = "text/css";
 styleSheet.innerText = styles;
 document.head.appendChild(styleSheet);
 
-function SeverityBadge({ severity }) {
-  const colors = {
-    P0: "red",
-    P1: "orange",
-    P2: "yellow",
-    P3: "green"
-  };
+function Accordion({ title, items }) {
+  const [isOpen, setIsOpen] = useState(false);
+
   return (
-    <span style={{ color: colors[severity] || "black", fontWeight: "bold" }}>
-      {severity}
-    </span>
+    <div style={{ marginBottom: '10px' }}>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        style={{
+          background: 'none',
+          border: 'none',
+          color: '#007bff',
+          cursor: 'pointer',
+          fontSize: '14px',
+          fontWeight: 'bold',
+          textDecoration: 'underline',
+          padding: 0
+        }}
+      >
+        {title} {isOpen ? '▼' : '▶'}
+      </button>
+      {isOpen && (
+        <ul style={{
+          margin: '5px 0 0 20px',
+          padding: 0,
+          listStyleType: 'disc'
+        }}>
+          {items.map((item, index) => (
+            <li key={index} style={{ marginBottom: '5px', color: '#555' }}>
+              {item}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   );
 }
 
@@ -74,10 +97,36 @@ function Modal({ isOpen, onClose, children }) {
   );
 }
 
+function SeverityBadge({ severity }) {
+  const getSeverityColor = (sev) => {
+    switch (sev.toLowerCase()) {
+      case 'critical': return '#dc3545';
+      case 'high': return '#fd7e14';
+      case 'medium': return '#ffc107';
+      case 'low': return '#28a745';
+      default: return '#6c757d';
+    }
+  };
+
+  return (
+    <span style={{
+      padding: '4px 8px',
+      borderRadius: '12px',
+      fontSize: '12px',
+      fontWeight: 'bold',
+      textTransform: 'uppercase',
+      backgroundColor: getSeverityColor(severity),
+      color: severity.toLowerCase() === 'medium' ? 'black' : 'white'
+    }}>
+      {severity}
+    </span>
+  );
+}
+
 export default function App() {
   const [incidents, setIncidents] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
+  const [globalLoading, setGlobalLoading] = useState(false);
   const [form, setForm] = useState({
     serviceName: "",
     environment: "",
@@ -86,18 +135,23 @@ export default function App() {
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
+    setGlobalLoading(true);
     fetch(`${API_BASE_URL}/incidents`)
       .then(res => res.json())
       .then(data => {
         setIncidents(data);
         setLoading(false);
+        setGlobalLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch(() => {
+        setLoading(false);
+        setGlobalLoading(false);
+      });
   }, []);
 
   async function submitIncident(e) {
     e.preventDefault();
-    setSubmitting(true);
+    setGlobalLoading(true);
     try {
       const response = await fetch(`${API_BASE_URL}/api/incidents`, {
         method: "POST",
@@ -119,7 +173,7 @@ export default function App() {
       console.error('Error submitting incident:', error);
       // Optionally, set an error state to show user feedback
     } finally {
-      setSubmitting(false);
+      setGlobalLoading(false);
     }
   }
 
@@ -209,6 +263,7 @@ export default function App() {
                     <th style={tableHeaderStyle}>Severity</th>
                     <th style={tableHeaderStyle}>Confidence</th>
                     <th style={tableHeaderStyle}>Escalation</th>
+                    <th style={tableHeaderStyle}>AI Analysis</th>
                     <th style={tableHeaderStyle}>Created</th>
                   </tr>
                 </thead>
@@ -242,6 +297,10 @@ export default function App() {
                         }}>
                           {incident.escalation.replace('_', ' ')}
                         </span>
+                      </td>
+                      <td style={tableCellStyle}>
+                        <Accordion title="Possible Causes" items={incident.possibleCauses} />
+                        <Accordion title="Next Steps" items={incident.nextSteps} />
                       </td>
                       <td style={tableCellStyle}>{new Date(incident.createdAt).toLocaleString()}</td>
                     </tr>
@@ -397,27 +456,54 @@ export default function App() {
                 }}>
                   Cancel
                 </button>
-                <button type="submit" disabled={submitting} style={{
-                  backgroundColor: submitting ? '#6c757d' : '#007bff',
+                <button type="submit" disabled={globalLoading} style={{
+                  backgroundColor: globalLoading ? '#6c757d' : '#007bff',
                   color: 'white',
                   border: 'none',
                   padding: '12px 24px',
                   borderRadius: '4px',
                   fontSize: '16px',
-                  cursor: submitting ? 'not-allowed' : 'pointer',
+                  cursor: globalLoading ? 'not-allowed' : 'pointer',
                   transition: 'background-color 0.3s',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '8px'
                 }}
-                onMouseOver={(e) => !submitting && (e.target.style.backgroundColor = '#0056b3')}
-                onMouseOut={(e) => !submitting && (e.target.style.backgroundColor = '#007bff')}
+                onMouseOver={(e) => !globalLoading && (e.target.style.backgroundColor = '#0056b3')}
+                onMouseOut={(e) => !globalLoading && (e.target.style.backgroundColor = '#007bff')}
                 >
-                  {submitting && <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} />}
-                  {submitting ? 'Submitting...' : 'Submit Incident'}
+                  {globalLoading && <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} />}
+                  {globalLoading ? 'Submitting...' : 'Submit Incident'}
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {globalLoading && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 2000,
+          pointerEvents: 'none'
+        }}>
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            color: 'white',
+            fontFamily: 'Arial, sans-serif'
+          }}>
+            <Loader2 size={48} style={{ animation: 'spin 1s linear infinite', marginBottom: '10px' }} />
+            <p style={{ fontSize: '18px', margin: 0 }}>Loading...</p>
           </div>
         </div>
       )}
