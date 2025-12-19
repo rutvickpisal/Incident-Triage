@@ -1,0 +1,25 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Incident {
+  id            String   @id @default(uuid())
+  description   String
+  serviceName   String
+  environment   String
+
+  severity      String
+  confidence    Float
+  aiStatus      String
+  escalation    String
+
+  possibleCauses String
+  nextSteps      String
+
+  createdAt     DateTime @default(now())
+}
