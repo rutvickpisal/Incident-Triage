@@ -3,8 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Incident {
@@ -18,8 +18,8 @@ model Incident {
   aiStatus      String
   escalation    String
 
-  possibleCauses String
-  nextSteps      String
+  possibleCauses String[]
+  nextSteps      String[]
 
   createdAt     DateTime @default(now())
 }

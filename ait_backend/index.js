@@ -56,8 +56,8 @@ app.post("/api/incidents", async (req, res) => {
       aiStatus,
       escalation,
 
-      possibleCauses: JSON.stringify(analysis.possibleCauses),
-      nextSteps: JSON.stringify(analysis.nextSteps)
+      possibleCauses: analysis.possibleCauses,
+      nextSteps: analysis.nextSteps
     }
   });
 
@@ -69,14 +69,7 @@ app.get("/incidents", async (req, res) => {
     orderBy: { createdAt: "desc" }
   });
 
-  // Parse JSON strings back to arrays
-  const parsedIncidents = incidents.map(incident => ({
-    ...incident,
-    possibleCauses: JSON.parse(incident.possibleCauses),
-    nextSteps: JSON.parse(incident.nextSteps)
-  }));
-
-  res.json(parsedIncidents);
+  res.json(incidents);
 });
 
 const PORT = process.env.PORT || 4000;
