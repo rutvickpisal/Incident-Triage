@@ -2,47 +2,21 @@ import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-const styles = `
-  @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
-`;
-
-// Inject styles
-const styleSheet = document.createElement("style");
-styleSheet.type = "text/css";
-styleSheet.innerText = styles;
-document.head.appendChild(styleSheet);
-
 function Accordion({ title, items }) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div style={{ marginBottom: '10px' }}>
+    <div className="mb-2.5">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        style={{
-          background: 'none',
-          border: 'none',
-          color: '#007bff',
-          cursor: 'pointer',
-          fontSize: '14px',
-          fontWeight: 'bold',
-          textDecoration: 'underline',
-          padding: 0
-        }}
+        className="bg-transparent border-none text-blue-600 cursor-pointer text-sm font-bold underline p-0"
       >
         {title} {isOpen ? '▼' : '▶'}
       </button>
       {isOpen && (
-        <ul style={{
-          margin: '5px 0 0 20px',
-          padding: 0,
-          listStyleType: 'disc'
-        }}>
+        <ul className="ml-5 mt-1.5 p-0 list-disc">
           {items.map((item, index) => (
-            <li key={index} style={{ marginBottom: '5px', color: '#555' }}>
+            <li key={index} className="mb-1.5 text-gray-700">
               {item}
             </li>
           ))}
@@ -56,39 +30,9 @@ function Modal({ isOpen, onClose, children }) {
   if (!isOpen) return null;
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: 'rgba(0,0,0,0.5)',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      zIndex: 1000
-    }}>
-      <div style={{
-        backgroundColor: 'white',
-        borderRadius: '8px',
-        padding: '30px',
-        maxWidth: '500px',
-        width: '90%',
-        maxHeight: '90vh',
-        overflowY: 'auto',
-        boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
-        position: 'relative'
-      }}>
-        <button onClick={onClose} style={{
-          position: 'absolute',
-          top: '10px',
-          right: '10px',
-          background: 'none',
-          border: 'none',
-          fontSize: '24px',
-          cursor: 'pointer',
-          color: '#666'
-        }}>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-40">
+      <div className="bg-white rounded-lg p-7.5 max-w-md w-11/12 max-h-11/12 overflow-y-auto relative shadow-2xl">
+        <button onClick={onClose} className="absolute top-2.5 right-2.5 bg-transparent border-none text-2xl cursor-pointer text-gray-600">
           ×
         </button>
         {children}
@@ -98,26 +42,18 @@ function Modal({ isOpen, onClose, children }) {
 }
 
 function SeverityBadge({ severity }) {
-  const getSeverityColor = (sev) => {
+  const getSeverityClasses = (sev) => {
     switch (sev.toLowerCase()) {
-      case 'critical': return '#dc3545';
-      case 'high': return '#fd7e14';
-      case 'medium': return '#ffc107';
-      case 'low': return '#28a745';
-      default: return '#6c757d';
+      case 'critical': return 'bg-red-600 text-white';
+      case 'high': return 'bg-orange-500 text-white';
+      case 'medium': return 'bg-yellow-400 text-black';
+      case 'low': return 'bg-green-500 text-white';
+      default: return 'bg-gray-500 text-white';
     }
   };
 
   return (
-    <span style={{
-      padding: '4px 8px',
-      borderRadius: '12px',
-      fontSize: '12px',
-      fontWeight: 'bold',
-      textTransform: 'uppercase',
-      backgroundColor: getSeverityColor(severity),
-      color: severity.toLowerCase() === 'medium' ? 'black' : 'white'
-    }}>
+    <span className={`px-2 py-1 rounded-lg text-xs font-bold uppercase ${getSeverityClasses(severity)}`}>
       {severity}
     </span>
   );
@@ -178,131 +114,65 @@ export default function App() {
   }
 
   if (loading) return (
-    <div style={{
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      height: '100vh',
-      fontFamily: 'Arial, sans-serif',
-      fontSize: '18px',
-      color: '#666',
-      flexDirection: 'column'
-    }}>
-      <Loader2 size={48} style={{ animation: 'spin 1s linear infinite' }} />
-      <p style={{ marginTop: '10px' }}>Loading incidents...</p>
+    <div className="flex justify-center items-center h-screen font-sans text-lg text-gray-600 flex-col">
+      <Loader2 size={48} className="animate-spin" />
+      <p className="mt-2.5">Loading incidents...</p>
     </div>
   );
 
   return (
-    <div style={{
-      fontFamily: 'Arial, sans-serif',
-      backgroundColor: 'white',
-      minHeight: '100vh'
-    }}>
-      <div style={{
-        boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-        overflow: 'hidden'
-      }}>
-        <header style={{
-          backgroundColor: '#007bff',
-          color: 'white',
-          padding: '20px',
-          textAlign: 'center'
-        }}>
-          <h1 style={{ margin: 0, fontSize: '28px' }}>AI Incident Triage Dashboard</h1>
-          <p style={{ margin: '10px 0 0', opacity: 0.9 }}>Log and monitor incidents with AI-powered analysis</p>
+    <div className="font-sans bg-white min-h-screen p-4">
+      <div className="shadow-lg overflow-hidden">
+        <header className="bg-blue-600 text-white py-5 text-center">
+          <h1 className="m-0 text-2xl">AI Incident Triage Dashboard</h1>
+          <p className="mt-2.5 opacity-90">Log and monitor incidents with AI-powered analysis</p>
         </header>
 
-        <div style={{ padding: '30px' }}>
-          <div style={{
-            backgroundColor: '#f8f9fa',
-            border: '1px solid #e9ecef',
-            borderRadius: '8px',
-            padding: '20px',
-            marginBottom: '30px',
-            textAlign: 'center'
-          }}>
-            <button onClick={() => setShowModal(true)} style={{
-              backgroundColor: '#007bff',
-              color: 'white',
-              border: 'none',
-              padding: '12px 24px',
-              borderRadius: '4px',
-              fontSize: '16px',
-              cursor: 'pointer',
-              transition: 'background-color 0.3s'
-            }}
-            onMouseOver={(e) => e.target.style.backgroundColor = '#0056b3'}
-            onMouseOut={(e) => e.target.style.backgroundColor = '#007bff'}
-            >
+        <div className="p-4">
+          <div className="bg-gray-100 border border-gray-300 rounded-lg p-4 mb-7.5 text-center">
+            <button onClick={() => setShowModal(true)} className="bg-blue-600 text-white border-none py-3 px-6 rounded cursor-pointer transition-colors duration-300 hover:bg-blue-800">
               Log New Incident
             </button>
           </div>
 
           <div>
-            <h2 style={{
-              color: '#333',
-              fontSize: '24px',
-              borderBottom: '2px solid #007bff',
-              paddingBottom: '10px',
-              marginBottom: '20px'
-            }}>
+            <h2 className="text-gray-800 text-xl border-b-2 border-blue-600 pb-2.5 mb-5">
               Recent Incidents
             </h2>
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{
-                width: '100%',
-                borderCollapse: 'collapse',
-                backgroundColor: 'white',
-                boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
-              }}>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse bg-white shadow">
                 <thead>
-                  <tr style={{ backgroundColor: '#f8f9fa' }}>
-                    <th style={tableHeaderStyle}>Service</th>
-                    <th style={tableHeaderStyle}>Environment</th>
-                    <th style={tableHeaderStyle}>Severity</th>
-                    <th style={tableHeaderStyle}>Confidence</th>
-                    <th style={tableHeaderStyle}>Escalation</th>
-                    <th style={tableHeaderStyle}>AI Analysis</th>
-                    <th style={tableHeaderStyle}>Created</th>
+                  <tr className="bg-gray-100">
+                    <th className="py-3 px-3 text-left font-bold text-gray-800 border-b-2 border-gray-300">Service</th>
+                    <th className="py-3 px-3 text-left font-bold text-gray-800 border-b-2 border-gray-300">Environment</th>
+                    <th className="py-3 px-3 text-left font-bold text-gray-800 border-b-2 border-gray-300">Severity</th>
+                    <th className="py-3 px-3 text-left font-bold text-gray-800 border-b-2 border-gray-300">Confidence</th>
+                    <th className="py-3 px-3 text-left font-bold text-gray-800 border-b-2 border-gray-300">Escalation</th>
+                    <th className="py-3 px-3 text-left font-bold text-gray-800 border-b-2 border-gray-300">AI Analysis</th>
+                    <th className="py-3 px-3 text-left font-bold text-gray-800 border-b-2 border-gray-300">Created</th>
                   </tr>
                 </thead>
                 <tbody>
                   {incidents.map(incident => (
-                    <tr key={incident.id} style={{ borderBottom: '1px solid #e9ecef' }}>
-                      <td style={tableCellStyle}>{incident.serviceName}</td>
-                      <td style={tableCellStyle}>
-                        <span style={{
-                          padding: '4px 8px',
-                          borderRadius: '12px',
-                          fontSize: '12px',
-                          fontWeight: 'bold',
-                          textTransform: 'uppercase',
-                          backgroundColor: incident.environment === 'production' ? '#dc3545' : '#ffc107',
-                          color: incident.environment === 'production' ? 'white' : 'black'
-                        }}>
+                    <tr key={incident.id} className="border-b border-gray-300">
+                      <td className="py-3 px-3 border-b border-gray-300">{incident.serviceName}</td>
+                      <td className="py-3 px-3 border-b border-gray-300">
+                        <span className={`px-2 py-1 rounded-lg text-xs font-bold uppercase ${incident.environment === 'production' ? 'bg-red-600 text-white' : 'bg-yellow-400 text-black'}`}>
                           {incident.environment}
                         </span>
                       </td>
-                      <td style={tableCellStyle}><SeverityBadge severity={incident.severity} /></td>
-                      <td style={tableCellStyle}>{Math.round(incident.confidence * 100)}%</td>
-                      <td style={tableCellStyle}>
-                        <span style={{
-                          padding: '4px 8px',
-                          borderRadius: '12px',
-                          fontSize: '12px',
-                          fontWeight: 'bold',
-                          backgroundColor: incident.escalation === 'AUTO_TRIAGED' ? '#28a745' : '#ffc107',
-                          color: incident.escalation === 'AUTO_TRIAGED' ? 'white' : 'black'
-                        }}>
+                      <td className="py-3 px-3 border-b border-gray-300"><SeverityBadge severity={incident.severity} /></td>
+                      <td className="py-3 px-3 border-b border-gray-300">{Math.round(incident.confidence * 100)}%</td>
+                      <td className="py-3 px-3 border-b border-gray-300">
+                        <span className={`px-2 py-1 rounded-lg text-xs font-bold ${incident.escalation === 'AUTO_TRIAGED' ? 'bg-green-500 text-white' : 'bg-yellow-400 text-black'}`}>
                           {incident.escalation.replace('_', ' ')}
                         </span>
                       </td>
-                      <td style={tableCellStyle}>
+                      <td className="py-3 px-3 border-b border-gray-300">
                         <Accordion title="Possible Causes" items={incident.possibleCauses} />
                         <Accordion title="Next Steps" items={incident.nextSteps} />
                       </td>
-                      <td style={tableCellStyle}>{new Date(incident.createdAt).toLocaleString()}</td>
+                      <td className="py-3 px-3 border-b border-gray-300">{new Date(incident.createdAt).toLocaleString()}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -313,63 +183,19 @@ export default function App() {
       </div>
 
       {showModal && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(0,0,0,0.5)',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          zIndex: 1000
-        }}>
-          <div style={{
-            backgroundColor: 'white',
-            borderRadius: '8px',
-            padding: '30px',
-            maxWidth: '500px',
-            width: '90%',
-            maxHeight: '90vh',
-            overflowY: 'auto',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
-            position: 'relative'
-          }}>
-            <button onClick={() => setShowModal(false)} style={{
-              position: 'absolute',
-              top: '10px',
-              right: '10px',
-              background: 'none',
-              border: 'none',
-              fontSize: '24px',
-              cursor: 'pointer',
-              color: '#666'
-            }}>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-40">
+          <div className="bg-white rounded-lg p-4 max-w-md w-11/12 max-h-11/12 overflow-y-auto relative shadow-2xl">
+            <button onClick={() => setShowModal(false)} className="absolute top-2.5 right-2.5 bg-transparent border-none text-2xl cursor-pointer text-gray-600">
               ×
             </button>
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginBottom: '20px'
-            }}>
-              <h2 style={{
-                margin: 0,
-                color: '#333',
-                fontSize: '24px'
-              }}>
+            <div className="flex justify-between items-center mb-5">
+              <h2 className="m-0 text-gray-800 text-xl">
                 Log New Incident
               </h2>
             </div>
             <form onSubmit={submitIncident}>
-              <div style={{ marginBottom: '15px' }}>
-                <label style={{
-                  display: 'block',
-                  marginBottom: '5px',
-                  fontWeight: 'bold',
-                  color: '#555'
-                }}>
+              <div className="mb-3.75">
+                <label className="block mb-1.25 font-bold text-gray-700">
                   Service Name
                 </label>
                 <input
@@ -378,38 +204,19 @@ export default function App() {
                   value={form.serviceName}
                   onChange={e => setForm({ ...form, serviceName: e.target.value })}
                   required
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    border: '1px solid #ccc',
-                    borderRadius: '4px',
-                    fontSize: '16px',
-                    boxSizing: 'border-box'
-                  }}
+                  className="w-full p-2.5 border border-gray-300 rounded box-border text-base"
                 />
               </div>
 
-              <div style={{ marginBottom: '15px' }}>
-                <label style={{
-                  display: 'block',
-                  marginBottom: '5px',
-                  fontWeight: 'bold',
-                  color: '#555'
-                }}>
+              <div className="mb-3.75">
+                <label className="block mb-1.25 font-bold text-gray-700">
                   Environment
                 </label>
                 <select
                   value={form.environment}
                   onChange={e => setForm({ ...form, environment: e.target.value })}
                   required
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    border: '1px solid #ccc',
-                    borderRadius: '4px',
-                    fontSize: '16px',
-                    backgroundColor: 'white'
-                  }}
+                  className="w-full p-2.5 border border-gray-300 rounded text-base bg-white"
                 >
                   <option value="">Select Environment</option>
                   <option value="production">Production</option>
@@ -417,13 +224,8 @@ export default function App() {
                 </select>
               </div>
 
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{
-                  display: 'block',
-                  marginBottom: '5px',
-                  fontWeight: 'bold',
-                  color: '#555'
-                }}>
+              <div className="mb-5">
+                <label className="block mb-1.25 font-bold text-gray-700">
                   Incident Description
                 </label>
                 <textarea
@@ -432,47 +234,16 @@ export default function App() {
                   onChange={e => setForm({ ...form, description: e.target.value })}
                   required
                   rows={4}
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    border: '1px solid #ccc',
-                    borderRadius: '4px',
-                    fontSize: '16px',
-                    resize: 'vertical',
-                    boxSizing: 'border-box'
-                  }}
+                  className="w-full p-2.5 border border-gray-300 rounded text-base resize-vertical box-border"
                 />
               </div>
 
-              <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-                <button type="button" onClick={() => setShowModal(false)} style={{
-                  backgroundColor: '#6c757d',
-                  color: 'white',
-                  border: 'none',
-                  padding: '12px 24px',
-                  borderRadius: '4px',
-                  fontSize: '16px',
-                  cursor: 'pointer'
-                }}>
+              <div className="flex gap-2.5 justify-end">
+                <button type="button" onClick={() => setShowModal(false)} className="bg-gray-500 text-white border-none py-3 px-6 rounded text-base cursor-pointer">
                   Cancel
                 </button>
-                <button type="submit" disabled={globalLoading} style={{
-                  backgroundColor: globalLoading ? '#6c757d' : '#007bff',
-                  color: 'white',
-                  border: 'none',
-                  padding: '12px 24px',
-                  borderRadius: '4px',
-                  fontSize: '16px',
-                  cursor: globalLoading ? 'not-allowed' : 'pointer',
-                  transition: 'background-color 0.3s',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px'
-                }}
-                onMouseOver={(e) => !globalLoading && (e.target.style.backgroundColor = '#0056b3')}
-                onMouseOut={(e) => !globalLoading && (e.target.style.backgroundColor = '#007bff')}
-                >
-                  {globalLoading && <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} />}
+                <button type="submit" disabled={globalLoading} className={`text-white border-none py-3 px-6 rounded text-base cursor-pointer flex items-center gap-2 transition-colors duration-300 ${globalLoading ? 'bg-gray-500 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-800'}`}>
+                  {globalLoading && <Loader2 size={16} className="animate-spin" />}
                   {globalLoading ? 'Submitting...' : 'Submit Incident'}
                 </button>
               </div>
@@ -482,45 +253,14 @@ export default function App() {
       )}
 
       {globalLoading && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(0,0,0,0.5)',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          zIndex: 2000,
-          pointerEvents: 'none'
-        }}>
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            color: 'white',
-            fontFamily: 'Arial, sans-serif'
-          }}>
-            <Loader2 size={48} style={{ animation: 'spin 1s linear infinite', marginBottom: '10px' }} />
-            <p style={{ fontSize: '18px', margin: 0 }}>Loading...</p>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 pointer-events-none">
+          <div className="flex flex-col items-center text-white font-sans">
+            <Loader2 size={48} className="animate-spin mb-2.5" />
+            <p className="text-lg m-0">Loading...</p>
           </div>
         </div>
       )}
     </div>
   );
 }
-
-const tableHeaderStyle = {
-  padding: '12px',
-  textAlign: 'left',
-  fontWeight: 'bold',
-  color: '#333',
-  borderBottom: '2px solid #dee2e6'
-};
-
-const tableCellStyle = {
-  padding: '12px',
-  borderBottom: '1px solid #dee2e6'
-};
 
