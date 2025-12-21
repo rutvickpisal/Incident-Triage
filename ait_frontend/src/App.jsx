@@ -1,45 +1,8 @@
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
+import Accordian from "./components/Accordian";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-function Accordion({ title, items }) {
-  const [isOpen, setIsOpen] = useState(false);
-
-  return (
-    <div className="mb-2.5">
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="bg-transparent border-none text-blue-600 cursor-pointer text-sm font-bold underline p-0"
-      >
-        {title} {isOpen ? '▼' : '▶'}
-      </button>
-      {isOpen && (
-        <ul className="ml-5 mt-1.5 p-0 list-disc">
-          {items.map((item, index) => (
-            <li key={index} className="mb-1.5 text-gray-700">
-              {item}
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
-}
-
-function Modal({ isOpen, onClose, children }) {
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-40">
-      <div className="bg-white rounded-lg p-7.5 max-w-md w-11/12 max-h-11/12 overflow-y-auto relative shadow-2xl">
-        <button onClick={onClose} className="absolute top-2.5 right-2.5 bg-transparent border-none text-2xl cursor-pointer text-gray-600">
-          ×
-        </button>
-        {children}
-      </div>
-    </div>
-  );
-}
 
 function SeverityBadge({ severity }) {
   const getSeverityClasses = (sev) => {
@@ -61,6 +24,7 @@ function SeverityBadge({ severity }) {
 
 export default function App() {
   const [incidents, setIncidents] = useState([]);
+  const [openTableRows, setOpenTableRows] = useState(Array(incidents.length).fill(false));
   const [loading, setLoading] = useState(true);
   const [globalLoading, setGlobalLoading] = useState(false);
   const [form, setForm] = useState({
@@ -69,6 +33,12 @@ export default function App() {
     description: ""
   });
   const [showModal, setShowModal] = useState(false);
+
+  const handleRowClick = (idx) => {
+    const newOpenTableRows = [...openTableRows];
+    newOpenTableRows[idx] = !newOpenTableRows[idx];
+    setOpenTableRows(newOpenTableRows);
+  };
 
   useEffect(() => {
     setGlobalLoading(true);
@@ -143,37 +113,54 @@ export default function App() {
               <table className="w-full border-collapse bg-white shadow">
                 <thead>
                   <tr className="bg-gray-100">
+                    <th className="py-3 px-3 text-left font-bold text-gray-800 border-b-2 border-gray-300">AI Analysis</th>
                     <th className="py-3 px-3 text-left font-bold text-gray-800 border-b-2 border-gray-300">Service</th>
                     <th className="py-3 px-3 text-left font-bold text-gray-800 border-b-2 border-gray-300">Environment</th>
                     <th className="py-3 px-3 text-left font-bold text-gray-800 border-b-2 border-gray-300">Severity</th>
                     <th className="py-3 px-3 text-left font-bold text-gray-800 border-b-2 border-gray-300">Confidence</th>
                     <th className="py-3 px-3 text-left font-bold text-gray-800 border-b-2 border-gray-300">Escalation</th>
-                    <th className="py-3 px-3 text-left font-bold text-gray-800 border-b-2 border-gray-300">AI Analysis</th>
+                    
                     <th className="py-3 px-3 text-left font-bold text-gray-800 border-b-2 border-gray-300">Created</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {incidents.map(incident => (
-                    <tr key={incident.id} className="border-b border-gray-300">
-                      <td className="py-3 px-3 border-b border-gray-300">{incident.serviceName}</td>
-                      <td className="py-3 px-3 border-b border-gray-300">
-                        <span className={`px-2 py-1 rounded-lg text-xs font-bold uppercase ${incident.environment === 'production' ? 'bg-red-600 text-white' : 'bg-yellow-400 text-black'}`}>
-                          {incident.environment}
-                        </span>
-                      </td>
-                      <td className="py-3 px-3 border-b border-gray-300"><SeverityBadge severity={incident.severity} /></td>
-                      <td className="py-3 px-3 border-b border-gray-300">{Math.round(incident.confidence * 100)}%</td>
-                      <td className="py-3 px-3 border-b border-gray-300">
-                        <span className={`px-2 py-1 rounded-lg text-xs font-bold ${incident.escalation === 'AUTO_TRIAGED' ? 'bg-green-500 text-white' : 'bg-yellow-400 text-black'}`}>
-                          {incident.escalation.replace('_', ' ')}
-                        </span>
-                      </td>
-                      <td className="py-3 px-3 border-b border-gray-300">
-                        <Accordion title="Possible Causes" items={incident.possibleCauses} />
-                        <Accordion title="Next Steps" items={incident.nextSteps} />
-                      </td>
-                      <td className="py-3 px-3 border-b border-gray-300">{new Date(incident.createdAt).toLocaleString()}</td>
-                    </tr>
+                  {incidents.map((incident, idx) => (
+                    <>
+                      <tr key={incident.id} className="border-b border-gray-300">
+                        <td
+                          className="py-3 px-3 border-b border-gray-300 cursor-pointer text-blue-600 underline hover:text-blue-800"
+                          onClick={() => handleRowClick(idx)}
+                          role="button"
+                          title="View analysis"
+                        >
+                          {incident.id ?? "N/A"}
+                        </td>
+                        <td className="py-3 px-3 border-b border-gray-300">{incident.serviceName}</td>
+                        <td className="py-3 px-3 border-b border-gray-300">
+                          <span className={`px-2 py-1 rounded-lg text-xs font-bold uppercase ${incident.environment === 'production' ? 'bg-red-600 text-white' : 'bg-yellow-400 text-black'}`}>
+                            {incident.environment}
+                          </span>
+                        </td>
+                        <td className="py-3 px-3 border-b border-gray-300"><SeverityBadge severity={incident.severity} /></td>
+                        <td className="py-3 px-3 border-b border-gray-300">{Math.round(incident.confidence * 100)}%</td>
+                        <td className="py-3 px-3 border-b border-gray-300">
+                          <span className={`px-2 py-1 rounded-lg text-xs font-bold ${incident.escalation === 'AUTO_TRIAGED' ? 'bg-green-500 text-white' : 'bg-yellow-400 text-black'}`}>
+                            {incident.escalation.replace('_', ' ')}
+                          </span>
+                        </td>
+
+                        <td className="py-3 px-3 border-b border-gray-300">{new Date(incident.createdAt).toLocaleString()}</td>
+                      </tr>
+                      {
+                        openTableRows[idx] && (
+                          <tr>
+                            <td colSpan={7} className="p-4 bg-gray-50">
+                            <Accordian possibleCauses={incident.possibleCauses} nextSteps={incident.nextSteps} AISummary={incident.AISummary} />
+                            </td>
+                          </tr>
+                        )
+                      }
+                    </>
                   ))}
                 </tbody>
               </table>
