@@ -9,7 +9,7 @@ const client = new OpenAI({
   baseURL: process.env.OPENAI_BASE_URL
 });
 
-export async function analyzeIncident(description) {
+export async function analyzeIncident(description, context) {
 
   try {
     const completion = await client.chat.completions.create({
@@ -28,14 +28,16 @@ export async function analyzeIncident(description) {
               "severity": "P0 | P1 | P2 | P3",
               "possibleCauses": string[],
               "nextSteps": string[],
+              "AISummary": string,
               "confidence": number (0 to 1)
             }
 
-            No explanations.
+            AISummary is the only field where you should provide a detailed explanation of the incident in at least 3 and at max 5 lines per your understanding.
             No markdown.
             No extra text.
-
-            Incident:
+            Past similar incidents for your context if provided:
+            ${context}
+            current Incident:
             ${description}
             `
         }

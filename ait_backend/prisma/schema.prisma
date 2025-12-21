@@ -12,6 +12,7 @@ model Incident {
   description   String
   serviceName   String
   environment   String
+  embedding     Json?
 
   severity      String
   confidence    Float
@@ -20,6 +21,8 @@ model Incident {
 
   possibleCauses String[]
   nextSteps      String[]
+
+  AISummary     String?
 
   createdAt     DateTime @default(now())
 }
