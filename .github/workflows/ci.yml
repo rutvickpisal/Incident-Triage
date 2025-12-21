@@ -14,6 +14,10 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
+    - name: Change to backend directory
+      working-directory: ait_backend
+      run: echo "Changed to ait_backend directory"
+
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
@@ -21,12 +25,16 @@ jobs:
 
     - name: Install dependencies
       run: npm install
+      working-directory: ait_backend
 
     - name: Lint
       run: npm run lint || echo 'No lint script defined.'
+      working-directory: ait_backend
 
     - name: Run tests
       run: npm test || echo 'No test script defined.'
+      working-directory: ait_backend
 
     - name: Build
       run: npm run build || echo 'No build script defined.'
+      working-directory: ait_backend
