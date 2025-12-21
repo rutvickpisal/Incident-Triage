@@ -44,7 +44,6 @@ export async function analyzeIncident(description, context) {
       ]
     });
 
-    console.log("GROQ RESPONSE RECEIVED");
     return completion.choices[0].message.content;
 
   } catch (err) {

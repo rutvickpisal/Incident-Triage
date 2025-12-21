@@ -36,7 +36,6 @@ app.post("/api/incidents", async (req, res) => {
       `).join("\n");
 
       const aiResponse = await analyzeIncident(description, context);
-      console.log("AI Response:", aiResponse);
       const parsed = parseAIResponse(aiResponse);
 
       if (!parsed) {

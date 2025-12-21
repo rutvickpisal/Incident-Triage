@@ -8,17 +8,14 @@ export function cosineSimilarity(a, b) {
 }
 // queryEmbedding is a vector
 export async function findSimilarIncidents(queryEmbedding) {
-  console.log("FINDING SIMILAR INCIDENTS");
   const incidents = await prisma.incident.findMany({
     where: { embedding: { not: null } },
     take: 50
   });
-  console.log("FOUND INCIDENTS FOR SIMILARITY:", incidents.length);
   const scored = incidents.map(i => ({
     incident: i,
     score: cosineSimilarity(queryEmbedding, i.embedding)
   }));
-  console.log("SCORED INCIDENTS:", scored);
   return scored
     .sort((a, b) => b.score - a.score)
     .slice(0, 3)
