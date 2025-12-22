@@ -130,5 +130,6 @@ Example Response
     "Rollback to last stable release",
     "Audit recent dependency changes"
   ],
+  AISummary: "Why this incident might have taken place and steps that might help avoiding such incidents in the future."
   "confidence": 0.91
 }
